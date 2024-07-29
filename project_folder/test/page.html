@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Phishing Detection</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Phishing Detection</h1>
+        <form action="/predict" method="post" enctype="multipart/form-data">
+            <label for="htmlFile">Upload HTML file:</label>
+            <input type="file" id="htmlFile" name="html_file" accept=".html">
+            <button type="submit">Predict</button>
+        </form>
+        <p id="predictionResult">{{ prediction_result }}</p>
+    </div>
+
+    <script>
+        function predict() {
+            var htmlContent = document.getElementById("htmlContent").value;
+
+            // Send the HTML content to the server for prediction
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'html_content=' + encodeURIComponent(htmlContent),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.prediction !== undefined) {
+                    document.getElementById("predictionResult").innerHTML = 'Prediction: ' + data.prediction;
+                } else if (data.error !== undefined) {
+                    document.getElementById("predictionResult").innerHTML = 'Error: ' + data.error;
+                } else {
+                    document.getElementById("predictionResult").innerHTML = 'Unexpected response from server';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
